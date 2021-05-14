@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 
-public class zombieControls : MonoBehaviour
+public class zombieControls : MonoBehaviour, IHealth
 {
     public enum Zombie_State { Idle, Chasing, attack, dead}
     public Zombie_State is_currently = Zombie_State.Idle;
@@ -18,6 +19,7 @@ public class zombieControls : MonoBehaviour
     float dist;
     float attack_range = 1.5f;
     public bool isDead = false;
+    Manager theManager;
 
     // Start is called before the first frame update
     void Start()
@@ -120,6 +122,27 @@ public class zombieControls : MonoBehaviour
         
 
     }
-    
 
+    internal void iAm(Manager manager)
+    {
+        theManager = manager;
+    }
+
+    public void takedamage(int amt_dmg)
+    {
+        health -= amt_dmg;
+
+        if (health < 0)
+        {
+            killZombie();
+        }
+    }
+
+    private void killZombie()
+    {
+        is_currently = Zombie_State.dead;
+
+        theManager.IAmDeader(this);
+        Destroy(gameObject, 5);
+    }
 }

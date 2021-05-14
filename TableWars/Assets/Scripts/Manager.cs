@@ -45,7 +45,7 @@ public class Manager : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 currentlySelectedPlayer.newDestinationIs(hit.point);
-                
+
             }
         }
 
@@ -56,8 +56,8 @@ public class Manager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             currentlySelectedPlayer.executeAction();
-         }
-       
+        }
+
         if (Input.GetKeyDown(KeyCode.Z))
         {
             spawnZombie();
@@ -68,7 +68,7 @@ public class Manager : MonoBehaviour
     {
         foreach (Player_Movement player in players)
         {
-            foreach(zombieControls zombie in zombies)
+            foreach (zombieControls zombie in zombies)
             {
                 if (Vector3.Distance(player.transform.position, zombie.transform.position) < MaxRange)
                 {
@@ -93,21 +93,26 @@ public class Manager : MonoBehaviour
         int i = UnityEngine.Random.Range(0, spawnPoints.Count());
 
 
-        GameObject zombieGO = Instantiate(zombieTemplate, spawnPoints[i].transform.position,Quaternion.identity);
-        zombies.Add(zombieGO.GetComponent<zombieControls>());
+        GameObject zombieGO = Instantiate(zombieTemplate, spawnPoints[i].transform.position, Quaternion.identity);
 
-    }    
+        zombieControls newZed = zombieGO.GetComponent<zombieControls>();
+
+        newZed.iAm(this);
+
+        zombies.Add(newZed);
+
+    }
 
     public void moving_away()
     {
-        Vector3 target =currentlySelectedPlayer.final_destination_actual;
+        Vector3 target = currentlySelectedPlayer.final_destination_actual;
         Vector3 currentPlayer = currentlySelectedPlayer.transform.position;
-        Vector3 zombie_player =zombiePos;
-        
+        Vector3 zombie_player = zombiePos;
+
         float cp_to_target = Vector3.Distance(currentPlayer, target);
         float zp_to_target = Vector3.Distance(zombie_player, target);
 
-        if (cp_to_target<zp_to_target)
+        if (cp_to_target < zp_to_target)
         {
             //currentlySelectedPlayer.char_animation.SetBool("movingAway", true);
             movingBackwards = true;
@@ -122,6 +127,8 @@ public class Manager : MonoBehaviour
 
     }
 
+    internal void IAmDeader(zombieControls zombieControls)
+    {
+        zombies.Remove(zombieControls);
+    }
 }
-
-

@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class health : MonoBehaviour
 {
+    //int health=100;
+
+    public int healthPoints
+    {
+        //get { return health; }
+        set 
+        {
+            
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,6 +24,11 @@ public class health : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        //if (health <= 0)
+        {
+            //dead
+        }
     }
+
+   
 }
