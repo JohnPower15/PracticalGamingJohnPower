@@ -11,7 +11,7 @@ public class Player_Movement : MonoBehaviour
 {
     NavMeshPath path;
     Vector3 targetPosition;
-    
+
     bool isMoving = false;
     internal Animator char_animation;
     float maxdistance = 5;
@@ -25,7 +25,8 @@ public class Player_Movement : MonoBehaviour
     zombieControls currentTarget;
 
     internal Vector3 final_destination_actual;
-
+    private float cooldown;
+    private float firingInterval = 1;
 
     void Start()
     {
@@ -34,8 +35,8 @@ public class Player_Movement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
 
-       line = GetComponent<LineRenderer>();
-       line.material.color = Color.white;
+        line = GetComponent<LineRenderer>();
+        line.material.color = Color.white;
 
         line.startWidth = 0.1f;
         line.endWidth = 0.1f;
@@ -45,7 +46,7 @@ public class Player_Movement : MonoBehaviour
 
     void Update()
     {
-   
+
 
         if (agent.velocity.magnitude > 0.005f)
         {
@@ -54,14 +55,14 @@ public class Player_Movement : MonoBehaviour
         if (agent.velocity.magnitude < 0.05f)
         {
             isMoving = false;
-            
+
         }
 
 
         if (isMoving)
         {
             //Manager manager = new Manager();
-            
+
             if (Manager.movingBackwards)
             {
                 char_animation.SetBool("moving_back", true);
@@ -71,7 +72,7 @@ public class Player_Movement : MonoBehaviour
                 char_animation.SetBool("is_walking", true);
             }
             line.enabled = false;
-            
+
         }
         else
         {
@@ -79,15 +80,27 @@ public class Player_Movement : MonoBehaviour
             char_animation.SetBool("moving_back", false);
         }
 
+        cooldown -= Time.deltaTime;
         if (currentTarget)
         {
             char_animation.SetBool("isShooting", true);
             transform.LookAt(currentTarget.transform);
+
+
+            if (cooldown < 0)
+            {
+                currentTarget.takedamage(50);
+                cooldown = firingInterval;
+
+                print("zeds dead");
+            }
+
+
         }
         else
         {
             char_animation.SetBool("isShooting", false);
-            
+
         }
 
     }
@@ -99,9 +112,9 @@ public class Player_Movement : MonoBehaviour
 
     internal void newDestinationIs(Vector3 destination)
     {
-            agent.SetDestination(destination);
-            StartCoroutine(DisplayLineDestination());
-        
+        agent.SetDestination(destination);
+        StartCoroutine(DisplayLineDestination());
+
         agent.speed = 0;
     }
 
@@ -119,7 +132,7 @@ public class Player_Movement : MonoBehaviour
 
         line.enabled = true;
 
-        while ((i < agent.path.corners.Length )&&( agent.path.corners.Length>1))
+        while ((i < agent.path.corners.Length) && (agent.path.corners.Length > 1))
         {
             point = agent.path.corners.ToList();
 
@@ -136,26 +149,26 @@ public class Player_Movement : MonoBehaviour
 
             if (distance > maxdistance)
             {
-               float distance_to_max = maxdistance - lastdistance;
+                float distance_to_max = maxdistance - lastdistance;
 
-               float proportion_of_line_segment = distance_to_max / segment_distance;
+                float proportion_of_line_segment = distance_to_max / segment_distance;
 
-               final_destination_actual = Vector3.Lerp(point[i - 1], point[i], proportion_of_line_segment);
+                final_destination_actual = Vector3.Lerp(point[i - 1], point[i], proportion_of_line_segment);
 
-               agent.SetDestination(final_destination_actual);
+                agent.SetDestination(final_destination_actual);
 
-               line.SetPosition(i, final_destination_actual);
-                
+                line.SetPosition(i, final_destination_actual);
+
                 i = 999;
-             
+
             }
             else
-            {   
+            {
                 line.SetPosition(i, point[i]);
             }
 
             i++;
-          
+
         }
     }
 
@@ -163,7 +176,7 @@ public class Player_Movement : MonoBehaviour
     {
         if (currentTarget)
         {
-            if (Vector3.Distance(transform.position, currentTarget.transform.position)> Vector3.Distance(transform.position, zombie.transform.position))
+            if (Vector3.Distance(transform.position, currentTarget.transform.position) > Vector3.Distance(transform.position, zombie.transform.position))
             {
                 currentTarget = zombie;
             }
